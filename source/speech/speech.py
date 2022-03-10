@@ -129,11 +129,13 @@ def isBlank(text):
 
 RE_CONVERT_WHITESPACE = re.compile("[\0\r\n]")
 
-def processText(locale,text,symbolLevel):
+def processText(locale, text, symbolLevel):
 	text = speechDictHandler.processText(text)
 	text = characterProcessing.processSpeechSymbols(locale, text, symbolLevel)
 	text = RE_CONVERT_WHITESPACE.sub(u" ", text)
-	return text.strip()
+	# if text is empty after processing, return blank instead
+	# Translators: This is spoken when the text is empty
+	return text.strip() or _("blank")
 
 def cancelSpeech():
 	"""Interupts the synthesizer from currently speaking"""
