@@ -130,12 +130,21 @@ def isBlank(text):
 RE_CONVERT_WHITESPACE = re.compile("[\0\r\n]")
 
 def processText(locale, text, symbolLevel):
+	wasBlank = isBlank(text)
 	text = speechDictHandler.processText(text)
 	text = characterProcessing.processSpeechSymbols(locale, text, symbolLevel)
 	text = RE_CONVERT_WHITESPACE.sub(u" ", text)
-	# if text is empty after processing, return blank instead
-	# Translators: This is spoken when the text is empty
-	return text.strip() or _("blank")
+	text = text.strip()
+	# if text is empty because of processing, return blank instead
+	# Note1: the reason text is checked for being empty after processing instead of using isBlank()
+	# is because strip() removes all the common BLANK_CHUNK_CHARS, so if it was blank it is almost definitely empty
+	# Note2: The reason wasBlank is taken into account is because without it, checkboxes on github would have a "blank" read after them
+	# following the heuristic of assuming blank text passed into processing isn't meant to be read takes care of this and possibly  other unknown edge cases
+	if wasBlank or text:
+		return text
+	else:
+		# Translators: This is spoken when the text is empty
+		return _("blank")
 
 def cancelSpeech():
 	"""Interupts the synthesizer from currently speaking"""
