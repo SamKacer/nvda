@@ -796,7 +796,7 @@ def speak(  # noqa: C901
 		speechSequence: SpeechSequence,
 		symbolLevel: Optional[int] = None,
 		priority: Spri = Spri.NORMAL,
-		suppressBlanks: bool = False
+		suppressBlanks: bool = True
 ):
 	"""Speaks a sequence of text and speech commands
 	@param speechSequence: the sequence of text and L{SpeechCommand} objects to speak
