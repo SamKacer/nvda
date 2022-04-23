@@ -853,6 +853,7 @@ def speak(  # noqa: C901
 		symbolLevel=config.conf["speech"]["symbolLevel"]
 	curLanguage=defaultLanguage
 	inCharacterMode=False
+	shouldConsiderSequenceBlank = True
 	for index in range(len(speechSequence)):
 		item=speechSequence[index]
 		if isinstance(item,CharacterModeCommand):
@@ -861,8 +862,15 @@ def speak(  # noqa: C901
 			curLanguage=item.lang
 		if isinstance(item,str):
 			speechSequence[index]=processText(curLanguage,item,symbolLevel)
+			# just check if text empty instead of isBlank()
+			#  since processText() strips out whitespace
+			if shouldConsiderSequenceBlank and speechSequence[index]:
+				shouldConsiderSequenceBlank = False
 			if not inCharacterMode:
 				speechSequence[index]+=CHUNK_SEPARATOR
+	if shouldConsiderSequenceBlank:
+		# Translators: This is spoken when the speech sequence is considered blank.
+		speechSequence.append(_("blank"))
 	_manager.speak(speechSequence, priority)
 
 
