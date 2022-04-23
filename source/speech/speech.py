@@ -1160,7 +1160,7 @@ def speakTextInfo(
 		speak(
 			seq,
 			priority=priority,
-			suppressBlanks= suppressBlanks or reason == OutputReason.SAYALL
+			suppressBlanks=suppressBlanks or reason == OutputReason.SAYALL
 		)
 	return speechGen.returnValue
 
