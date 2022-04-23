@@ -229,7 +229,7 @@ def speakSpelling(
 		locale=locale,
 		useCharacterDescriptions=useCharacterDescriptions
 	))
-	speak(seq, priority=priority)
+	speak(seq, priority=priority, suppressBlanks=True)
 
 
 def _getSpellingSpeechAddCharMode(
@@ -402,7 +402,7 @@ def speakObjectProperties(
 		**allowedProperties,
 	)
 	if speechSequence:
-		speak(speechSequence, priority=priority)
+		speak(speechSequence, priority=priority, suppressBlanks=reason == OutputReason.SAYALL)
 
 
 # C901 'getObjectPropertiesSpeech' is too complex
@@ -558,7 +558,7 @@ def speakObject(
 		_prefixSpeechCommand,
 	)
 	if sequence:
-		speak(sequence, priority=priority)
+		speak(sequence, priority=priority, suppressBlanks=reason == OutputReason.SAYALL)
 
 
 
@@ -709,13 +709,13 @@ def speakText(
 ):
 	"""Speaks some text.
 	@param text: The text to speak.
-	@param reason: Unused
+	@param reason: reason for speech
 	@param symbolLevel: The symbol verbosity level; C{None} (default) to use the user's configuration.
 	@param priority: The speech priority.
 	"""
 	seq = _getSpeakMessageSpeech(text)
 	if seq:
-		speak(seq, symbolLevel=symbolLevel, priority=priority)
+		speak(seq, symbolLevel=symbolLevel, priority=priority, suppressBlanks=reason == OutputReason.SAYALL)
 
 
 RE_INDENTATION_SPLIT = re.compile(r"^([^\S\r\n\f\v]*)(.*)$", re.UNICODE | re.DOTALL)
@@ -795,7 +795,8 @@ def getIndentationSpeech(indentation: str, formatConfig: Dict[str, bool]) -> Spe
 def speak(  # noqa: C901
 		speechSequence: SpeechSequence,
 		symbolLevel: Optional[int] = None,
-		priority: Spri = Spri.NORMAL
+		priority: Spri = Spri.NORMAL,
+		suppressBlanks: bool = False
 ):
 	"""Speaks a sequence of text and speech commands
 	@param speechSequence: the sequence of text and L{SpeechCommand} objects to speak
@@ -868,7 +869,7 @@ def speak(  # noqa: C901
 				shouldConsiderSequenceBlank = False
 			if not inCharacterMode:
 				speechSequence[index]+=CHUNK_SEPARATOR
-	if shouldConsiderSequenceBlank:
+	if not suppressBlanks and shouldConsiderSequenceBlank:
 		# Translators: This is spoken when the speech sequence is considered blank.
 		speechSequence.append(_("blank"))
 	_manager.speak(speechSequence, priority)
@@ -889,7 +890,7 @@ def speakPreselectedText(
 	"""
 	seq = getPreselectedTextSpeech(text)
 	if seq:
-		speak(seq, symbolLevel=None, priority=priority)
+		speak(seq, symbolLevel=None, priority=priority, suppressBlanks=True)
 
 
 def getPreselectedTextSpeech(
@@ -938,7 +939,7 @@ def speakSelectionMessage(
 ):
 	seq = _getSelectionMessageSpeech(message, text)
 	if seq:
-		speak(seq, symbolLevel=None, priority=priority)
+		speak(seq, symbolLevel=None, priority=priority, suppressBlanks=True)
 
 
 def _getSelectionMessageSpeech(
@@ -1156,7 +1157,11 @@ def speakTextInfo(
 
 	speechGen = GeneratorWithReturn(speechGen)
 	for seq in speechGen:
-		speak(seq, priority=priority)
+		speak(
+			seq,
+			priority=priority,
+			suppressBlanks= suppressBlanks or reason == OutputReason.SAYALL
+		)
 	return speechGen.returnValue
 
 
