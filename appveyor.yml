@@ -5,13 +5,10 @@
 os: Visual Studio 2019
 version: "{branch}-{build}"
 
-branches:
- only:
+branches:  
+ except:
   - master
-  - beta
-  - rc
-  - /try-.*/
-  - /release-.*/
+  - appveyor
 
 # scripts that are called at very beginning, before repo cloning
 init:
@@ -21,6 +18,7 @@ init:
 
 environment:
  PY_PYTHON: 3.7-32
+ my_buildBranch: appveyor
  secure_authenticode_pass:
   secure: Way+hJyhbiLG/cmCo4+dHHzS5DiSvk/45o6frnIQ27GBX6nVDsh7jwQ7fSnqxBRP
  secure_ssh_pass:
@@ -32,8 +30,13 @@ environment:
 install:
  - ps: |
     "INSTALL_START, $(Get-Date -Format 'o')"| Out-File ../timing.csv -Append
+ - cd appveyor\scripts
+ - curl -fsSL --remote-name-all "https://raw.githubusercontent.com/%APPVEYOR_REPO_NAME%/%my_buildBranch%/appveyor/scripts/{installNVDA,pushPackagingInfo,setBuildVersionVars,setSconsArgs,uploadArtifacts}.ps1"
+ - cd tests
+ - curl -fsSL --remote-name-all "https://raw.githubusercontent.com/%APPVEYOR_REPO_NAME%/%my_buildBranch%/appveyor/scripts/tests/{beforeTests,checkTestFailure,lintCheck,systemTests,translationCheck,unitTests}.ps1"
+ - cd %APPVEYOR_BUILD_FOLDER%
  - ps: appveyor\scripts\setBuildVersionVars.ps1
- - ps: appveyor\scripts\decryptFilesForSigning.ps1
+ #- ps: appveyor\scripts\decryptFilesForSigning.ps1
  - py -m pip install --upgrade --no-warn-script-location pip
  - git submodule update --init
  - ps: |
@@ -79,9 +82,6 @@ artifacts:
  - path: output\*
  - path: output\*\*
 
-deploy_script:
- - ps: appveyor\scripts\deployScript.ps1
-
 on_failure:
  - ps: appveyor\scripts\uploadArtifacts.ps1
 
@@ -90,3 +90,6 @@ on_finish:
  - ps: |
      "FINISH_END, $(Get-Date -Format 'o')"| Out-File ../timing.csv -Append
  - ps: appveyor\scripts\logCiTiming.ps1
+
+max_jobs: 1
+clone_depth: 1
