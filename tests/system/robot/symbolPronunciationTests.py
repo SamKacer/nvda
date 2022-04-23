@@ -146,11 +146,11 @@ def test_moveByWord():
 			'(quietly)', 'Hello,', 'Jim', '.',  # Expected: no symbols named
 			"don't",  # Expected: mid-word symbol
 			'right pointing arrow', 't shirt',  # todo: Expect dash
-			# todo: There should not be any "empty" words. Expect 'bar bar', and 'at  caret  star  line'
-			'1', 'bar', '2', '', '3', '', '4',
+			# "empty" words replaced with "blank"
+			'1', 'bar', '2', 'blank', '3', 'blank', '4',
 			# end of first line
 			'blank',  # single space and newline
-			'',  # tab and newline  todo: There should not be any "empty" words.
+			'blank',  # tab and newline
 			'blank',  # 4 spaces and newline
 			'right pointing arrow',
 			't shirt',  # todo: Expect dash
@@ -202,7 +202,7 @@ def test_moveByLine():
 			't-shirt',  # todo: Expect 'right-pointing arrow t-shirt'
 			'1   2    3      4',  # todo: Should symbols be passed to synth, i.e. "1 | 2 || 3 etc"?
 			'blank',  # single space
-			'',  # tab  # todo: There should not be any "empty" lines.
+			'blank',  # tab
 			'blank',  # four spaces
 			'blank',  # end of doc
 		]
