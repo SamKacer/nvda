@@ -195,11 +195,11 @@ def test_moveByLine():
 		symbolLevel=SymLevel.NONE,
 		expectedSpeech=[
 			'Say', '(quietly)', 'Hello,', 'Jim .', "don't",  # Expect:
-			'',  # todo: Expect 'right-pointing arrow'
+			'blank',  # 'right-pointing arrow'
 			't-shirt',
-			'',  # todo: Expect 'right-pointing arrow'
+			'blank',  # 'right-pointing arrow'
 			't-shirt',
-			't-shirt',  # todo: Expect 'right-pointing arrow t-shirt'
+			't-shirt',  # 'right-pointing arrow t-shirt'
 			'1   2    3      4',  # todo: Should symbols be passed to synth, i.e. "1 | 2 || 3 etc"?
 			'blank',  # single space
 			'blank',  # tab
