@@ -791,6 +791,9 @@ def getIndentationSpeech(indentation: str, formatConfig: Dict[str, bool]) -> Spe
 	return indentSequence
 
 
+import traceback
+import sys
+
 # C901 'speak' is too complex
 # Note: when working on speak, look for opportunities to simplify
 # and move logic out into smaller helper functions.
@@ -798,7 +801,7 @@ def speak(  # noqa: C901
 		speechSequence: SpeechSequence,
 		symbolLevel: Optional[int] = None,
 		priority: Spri = Spri.NORMAL,
-		suppressBlanks: bool = True
+		suppressBlanks: bool = False
 ):
 	"""Speaks a sequence of text and speech commands
 	@param speechSequence: the sequence of text and L{SpeechCommand} objects to speak
@@ -874,6 +877,8 @@ def speak(  # noqa: C901
 	if not suppressBlanks and shouldConsiderSequenceBlank:
 		# Translators: This is spoken when the speech sequence is considered blank.
 		speechSequence.append(_("blank"))
+		print(speechSequence, file=sys.stderr)
+		traceback.print_stack(file=sys.stderr)
 	_manager.speak(speechSequence, priority)
 
 
