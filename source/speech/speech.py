@@ -869,13 +869,11 @@ def speak(  # noqa: C901
 				speechSequence[index]+=CHUNK_SEPARATOR
 	# speech sequence should be considered blank if:
 	# 1. it contains strings
-	# 2. all strings are empty after processing
+	# 2. all strings are blank after processing
 	if (
 		not suppressBlanks
 		and any(isinstance(i, str) for i in speechSequence)
-		# just check if text empty instead of isBlank()
-		#  since processText() strips out whitespace
-		and all(not s for s in speechSequence if isinstance(s, str))
+		and all(isBlank(s) for s in speechSequence if isinstance(s, str))
 	):
 		# Translators: This is spoken when the speech sequence is considered blank.
 		speechSequence.append(_("blank"))
