@@ -859,7 +859,11 @@ def speak(  # noqa: C901
 		symbolLevel=config.conf["speech"]["symbolLevel"]
 	curLanguage=defaultLanguage
 	inCharacterMode=False
-	shouldConsiderSequenceBlank = True
+	# sequence should be considered blank if:
+	# 1. it contains a string
+	# 2. all strings are empty after processing
+	containsString = False
+	containsOnlyEmptyStrings = True
 	for index in range(len(speechSequence)):
 		item=speechSequence[index]
 		if isinstance(item,CharacterModeCommand):
@@ -867,18 +871,19 @@ def speak(  # noqa: C901
 		if autoLanguageSwitching and isinstance(item,LangChangeCommand):
 			curLanguage=item.lang
 		if isinstance(item,str):
+			if not containsString: containsString = True
 			speechSequence[index]=processText(curLanguage,item,symbolLevel)
 			# just check if text empty instead of isBlank()
 			#  since processText() strips out whitespace
-			if shouldConsiderSequenceBlank and speechSequence[index]:
-				shouldConsiderSequenceBlank = False
+			if containsOnlyEmptyStrings and speechSequence[index]:
+				containsOnlyEmptyStrings = False
 			if not inCharacterMode:
 				speechSequence[index]+=CHUNK_SEPARATOR
-	if not suppressBlanks and shouldConsiderSequenceBlank:
+	if not suppressBlanks and containsString and containsOnlyEmptyStrings:
 		# Translators: This is spoken when the speech sequence is considered blank.
 		speechSequence.append(_("blank"))
-		print(speechSequence, file=sys.stderr)
 		traceback.print_stack(file=sys.stderr)
+		print(speechSequence, file=sys.stderr)
 	_manager.speak(speechSequence, priority)
 
 
