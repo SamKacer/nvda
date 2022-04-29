@@ -791,9 +791,6 @@ def getIndentationSpeech(indentation: str, formatConfig: Dict[str, bool]) -> Spe
 	return indentSequence
 
 
-import traceback
-import sys
-
 # C901 'speak' is too complex
 # Note: when working on speak, look for opportunities to simplify
 # and move logic out into smaller helper functions.
@@ -859,11 +856,6 @@ def speak(  # noqa: C901
 		symbolLevel=config.conf["speech"]["symbolLevel"]
 	curLanguage=defaultLanguage
 	inCharacterMode=False
-	# sequence should be considered blank if:
-	# 1. it contains a string
-	# 2. all strings are empty after processing
-	containsString = False
-	containsOnlyEmptyStrings = True
 	for index in range(len(speechSequence)):
 		item=speechSequence[index]
 		if isinstance(item,CharacterModeCommand):
@@ -871,19 +863,21 @@ def speak(  # noqa: C901
 		if autoLanguageSwitching and isinstance(item,LangChangeCommand):
 			curLanguage=item.lang
 		if isinstance(item,str):
-			if not containsString: containsString = True
 			speechSequence[index]=processText(curLanguage,item,symbolLevel)
-			# just check if text empty instead of isBlank()
-			#  since processText() strips out whitespace
-			if containsOnlyEmptyStrings and speechSequence[index]:
-				containsOnlyEmptyStrings = False
 			if not inCharacterMode:
 				speechSequence[index]+=CHUNK_SEPARATOR
-	if not suppressBlanks and containsString and containsOnlyEmptyStrings:
+	# speech sequence should be considered blank if:
+	# 1. it contains strings
+	# 2. all strings are empty after processing
+	if (
+		not suppressBlanks
+		and any(isinstance(i, str) for i in speechSequence)
+		# just check if text empty instead of isBlank()
+		#  since processText() strips out whitespace
+		and all(not s for s in speechSequence if isinstance(s, str))
+	):
 		# Translators: This is spoken when the speech sequence is considered blank.
 		speechSequence.append(_("blank"))
-		traceback.print_stack(file=sys.stderr)
-		print(speechSequence, file=sys.stderr)
 	_manager.speak(speechSequence, priority)
 
 
