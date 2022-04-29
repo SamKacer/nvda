@@ -804,6 +804,7 @@ def speak(  # noqa: C901
 	@param speechSequence: the sequence of text and L{SpeechCommand} objects to speak
 	@param symbolLevel: The symbol verbosity level; C{None} (default) to use the user's configuration.
 	@param priority: The speech priority.
+	@param suppressBlanks: Whether to not append "blank" to the speech even if considered blank
 	"""
 	logBadSequenceTypes(speechSequence)
 	# in case priority was explicitly passed in as None, set to default.
