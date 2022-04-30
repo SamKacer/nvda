@@ -864,16 +864,19 @@ def speak(  # noqa: C901
 		if autoLanguageSwitching and isinstance(item,LangChangeCommand):
 			curLanguage=item.lang
 		if isinstance(item,str):
-			speechSequence[index]=processText(curLanguage,item,symbolLevel)
-			if not inCharacterMode:
-				speechSequence[index]+=CHUNK_SEPARATOR
+			text =processText(curLanguage, item, symbolLevel)
+			if not inCharacterMode and text:
+				text +=CHUNK_SEPARATOR
+			speechSequence[index] = text
 	# speech sequence should be considered blank if:
 	# 1. it contains strings
 	# 2. all strings are blank after processing
 	if (
 		not suppressBlanks
 		and any(isinstance(i, str) for i in speechSequence)
-		and all(isBlank(s) for s in speechSequence if isinstance(s, str))
+		# for checking if blank, just check if empty instead of isBlank(),
+		# since whitespace has been stripped during processing
+		and all(not s for s in speechSequence if isinstance(s, str))
 	):
 		# Translators: This is spoken when the speech sequence is considered blank.
 		speechSequence.append(_("blank"))
